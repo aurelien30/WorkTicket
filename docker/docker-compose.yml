@@ -1,0 +1,30 @@
+services:
+  php:
+    build:
+      context: ./php
+    volumes:
+      - ../backend:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+
+  database:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: workticket
+      MARIADB_USER: workticket_user
+      MARIADB_PASSWORD: workticket_pass
+      MARIADB_ROOT_PASSWORD: root_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:
