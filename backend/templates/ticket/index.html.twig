@@ -2,12 +2,26 @@
 
 
 {% block body %}
-<h1>Liste des Tickets</h1>
-<ul>
-    {% for ticket in tickets %}
-        <li>
-            <strong>{{ ticket.title }}</strong> - {{ ticket.priority }} - {{ ticket.status }}
-        </li></li>
-    {% endfor %}
+    <h1>Liste des Tickets</h1>
+    <ul>
+       {% for ticket in tickets %}
+            <li>
+               <strong>{{ ticket.title }}</strong> — {{ ticket.priority }} — {{ ticket.status.value }}
+
+                {% if is_granted('ROLE_TECHNICIEN') %}
+                    {% if ticket.status.name == 'NEW' or ticket.status.name == 'ASSIGNED' %}
+                        <a href="{{ path('ticket_assign', {id: ticket.id}) }}">Prendre en charge</a>
+                    {% endif %}
+                    {% if ticket.status.name == 'IN_PROGRESS' %}
+                        <a href="{{ path('ticket_resolve', {id: ticket.id}) }}">Résoudre</a>
+                    {% endif %}
+                    {% if ticket.status.name == 'RESOLVED' %}
+                        <a href="{{ path('ticket_close', {id: ticket.id}) }}">Fermer</a>
+                    {% endif %}
+                {% endif %}
+ 
+                
+            </li>
+        {% endfor %}
 </ul>
 {% endblock %}

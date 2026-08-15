@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\TicketRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\TicketStatus;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
@@ -23,11 +24,12 @@ class Ticket
     #[ORM\Column(length: 255)]
     private ?string $priority = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $status = null;
+    #[ORM\Column(enumType: TicketStatus::class)]
+    private ?TicketStatus $status = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+    
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -77,12 +79,12 @@ class Ticket
         return $this;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?TicketStatus
     {
         return $this->status;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(TicketStatus $status): static
     {
         $this->status = $status;
 

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\User;
 use App\Entity\Ticket;
+use App\Enum\TicketStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -34,7 +35,7 @@ class AppFixtures extends Fixture
         $ticket->setTitle('Problème serveur RH');
         $ticket->setDescription('Le serveur RH est indisponible depuis plusieurs heures.');
         $ticket->setPriority('HAUTE');
-        $ticket->setStatus('OUVERT');
+        $ticket->setStatus(TicketStatus::NEW);
         $ticket->setCreatedAt(new \DateTimeImmutable());
         $ticket->setCreator($user);
 

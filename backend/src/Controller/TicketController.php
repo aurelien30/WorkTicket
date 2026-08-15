@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Ticket;
+use App\Enum\TicketStatus;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,15 +18,16 @@ class TicketController extends AbstractController{
 #[IsGranted('ROLE_USER')]
 public function index(TicketRepository $ticketRepository): Response
 {
-    //Un technicien ne peut voir tous les tickets, un utilisateur normal ne voit que les siens
-    if ($this->isGranted('ROLE_TECHNICIEN')) {
-        $tickets = $ticketRepository->findAll();
-    } else {
-        $tickets = $ticketRepository->findBy(['creator' => $this->getUser()]);
-}
-return $this->render('ticket/index.html.twig', [
-    'tickets' => $tickets,
-]);
+  // Un technicien voit tous les tickets, un utilisateur normal ne voit que les siens
+        if ($this->isGranted('ROLE_TECHNICIEN')) {
+            $tickets = $ticketRepository->findAll();
+        } else {
+            $tickets = $ticketRepository->findBy(['creator' => $this->getUser()]);
+        }
+
+        return $this->render('ticket/index.html.twig', [
+            'tickets' => $tickets,
+        ]);
 }
 
 #[Route('/tickets/new', name: 'ticket_new')]
@@ -38,7 +40,7 @@ public function new(Request $request, EntityManagerInterface $em): Response{
         $ticket->setTitle($request->request->get('title'));
         $ticket->setDescription($request->request->get('description'));
         $ticket->setPriority($request->request->get('priority'));
-        $ticket->setStatus('OUVERT');
+        $ticket->setStatus(TicketStatus::NEW);
         $ticket->setCreatedAt(new \DateTimeImmutable());
         $ticket->setCreator($this->getUser());
 
@@ -49,5 +51,36 @@ public function new(Request $request, EntityManagerInterface $em): Response{
      }
 
      return $this->render('ticket/new.html.twig');
+   }
+
+   #[Route('/tickets/{id}/prendre-en-charge', name: 'ticket_assign')]
+   #[IsGranted('ROLE_TECHNICIEN')]
+   public function assign(Ticket $ticket, EntityManagerInterface $em): Response{
+
+        $ticket->setStatus(TicketStatus::IN_PROGRESS);
+        $ticket->setTechnician($this->getUser());
+        $em->flush();
+
+        return $this->redirectToRoute('ticket_index');
+   }
+
+   #[Route('/tickets/{id}/resoudre', name: 'ticket_resolve')]
+   #[IsGranted('ROLE_TECHNICIEN')]
+   public function resolve(Ticket $ticket, EntityManagerInterface $em): Response{
+
+   $ticket->setStatus(TicketStatus::RESOLVED);
+   $em->flush();
+
+   return $this->redirectToRoute('ticket_index');
+   }
+
+   #[Route('/tickets/{id}/fermer', name: 'ticket_close')]
+   //#[IsGranted('ROLE_TECHNICIEN')]
+   public function close(Ticket $ticket, EntityManagerInterface $em): Response{
+
+   $ticket->setStatus(TicketStatus::CLOSED);
+   $em->flush();
+
+   return $this->redirectToRoute('ticket_index');
    }
 }
