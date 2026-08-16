@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Ticket;
+use App\Entity\Comment;
 use App\Enum\TicketStatus;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -79,6 +80,22 @@ public function new(Request $request, EntityManagerInterface $em): Response{
    public function close(Ticket $ticket, EntityManagerInterface $em): Response{
 
    $ticket->setStatus(TicketStatus::CLOSED);
+   $em->flush();
+
+   return $this->redirectToRoute('ticket_index');
+   }
+
+   #[Route('/tickets/{id}/commenter', name: 'ticket_comment')]
+   #[IsGranted('ROLE_USER')]
+   public function addComment (Ticket $ticket, Request $request, EntityManagerInterface $em): Response{
+
+   $comment = new Comment();
+   $comment->setContent($request->request->get('content'));
+   $comment->setCreatedAt(new \DateTimeImmutable());
+   $comment->setTicket($ticket);
+   $comment->setAuthor($this->getUser());
+
+   $em->persist($comment);
    $em->flush();
 
    return $this->redirectToRoute('ticket_index');

@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\User;
 use App\Entity\Ticket;
+use App\Entity\Comment;
 use App\Enum\TicketStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -41,5 +42,35 @@ class AppFixtures extends Fixture
 
         $manager->persist($ticket);
         $manager->flush();
+
+
+        $technicien = new User;
+        $technicien->setEmail('marie.martin@workticket.local');
+        $technicien->setNom('Martin');
+        $technicien->setPrenom('Marie');
+        $technicien->setRoles(['ROLE_TECHNICIEN']);
+        $technicien->setCreatedAt(new \DateTimeImmutable());
+        $technicien->setPassword(
+            $this->passwordHasher->hashPassword($technicien, 'motdepasse456')
+        );
+
+        $manager->persist($technicien);
+        
+        $commentTech = new Comment();
+        $commentTech->setContent('Nous avons identifié le problème et travaillons à sa résolution.');
+        $commentTech->setCreatedAt(new \DateTimeImmutable());
+        $commentTech->setTicket($ticket);
+        $commentTech->setAuthor($technicien);
+        $manager->persist($commentTech);
+
+        $commentUser = new Comment();
+        $commentUser->setContent('Merci pour la mise à jour. J\'attends avec impatience la résolution du problème.');
+        $commentUser->setCreatedAt(new \DateTimeImmutable());
+        $commentUser->setTicket($ticket);
+        $commentUser->setAuthor($user);
+        $manager->persist($commentUser);
+
+        $manager->flush();
+        
     }
 }

@@ -19,8 +19,22 @@
                         <a href="{{ path('ticket_close', {id: ticket.id}) }}">Fermer</a>
                     {% endif %}
                 {% endif %}
- 
-                
+
+                <h4>Commentaires</h4>
+                <ul>
+                    {% for comment in ticket.cmments%}
+                    <li>
+                       <strong>{{ comment.author.prenom}} {{ comment.author.nom}}</strong>
+                       {{ comment.content}}
+                       <em>({{ comment.createdAt|date('d/m/Y H:i') }})</em>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}">
+                     <input type="text name="content" placeholder="Ecrire un message..." required>
+                     <button type="submit">Envoyer</button>
+                </form>
             </li>
         {% endfor %}
 </ul>
