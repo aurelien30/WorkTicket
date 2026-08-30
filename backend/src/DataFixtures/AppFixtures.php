@@ -5,6 +5,8 @@ namespace App\DataFixtures;
 use App\Entity\User;
 use App\Entity\Ticket;
 use App\Entity\Comment;
+use App\Entity\Project;
+use App\Entity\Task;
 use App\Enum\TicketStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -72,5 +74,33 @@ class AppFixtures extends Fixture
 
         $manager->flush();
         
+        $project = new Project();
+        $project->setName('Migration serveurs 2026');
+        $project->setDescription('Renouvellement de l\'infrastructure serveur du service RH.');
+        $project->setCreatedAt(new \DateTimeImmutable());
+        $manager->persist($project);
+
+        $task1 = new Task();
+        $task1->setTitle('Commander le nouveau matériel');
+        $task1->setStatus('A_FAIRE');
+        $task1->setCreatedAt(new \DateTimeImmutable());
+        $task1->setProject($project);
+        $manager->persist($task1);
+
+        $task2 = new Task();
+        $task2->setTitle('Configurer le nouveau switch');
+        $task2->setStatus('EN_COURS');
+        $task2->setCreatedAt(new \DateTimeImmutable());
+        $task2->setProject($project);
+        $manager->persist($task2);
+
+        $task3 = new Task();
+        $task3->setTitle('Sauvegarder l\'ancien serveur');
+        $task3->setStatus('TERMINE');
+        $task3->setCreatedAt(new \DateTimeImmutable());
+        $task3->setProject($project);
+        $manager->persist($task3);
+
+        $manager->flush();
     }
 }
