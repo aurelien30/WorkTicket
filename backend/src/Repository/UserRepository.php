@@ -33,6 +33,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function countActiveTechnicians(): int
+{
+    return (int) $this->createQueryBuilder('u')
+        ->select('COUNT(u.id)')
+        ->andWhere('u.roles LIKE :role')
+        ->setParameter('role', '%"ROLE_TECHNICIEN"%')
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
     //    /**
     //     * @return User[] Returns an array of User objects
     //     */

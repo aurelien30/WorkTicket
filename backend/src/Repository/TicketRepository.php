@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Ticket;
+use App\Enum\TicketStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,7 +17,35 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
-    //    /**
+    public function countByStatus(TicketStatus $status): int
+{
+    return $this->createQueryBuilder('t')
+        ->select('COUNT(t.id)')
+        ->andWhere('t.status = :status')
+        ->setParameter('status', $status)
+        ->getQuery()
+        ->getSingleScalarResult();
+}
+
+public function getAverageResolutionTimeInHours(): ?float
+{
+    $tickets = $this->createQueryBuilder('t')
+        ->andWhere('t.resolvedAt IS NOT NULL')
+        ->getQuery()
+        ->getResult();
+
+    if (count($tickets) === 0) {
+        return null;
+    }
+
+    $totalHours = 0;
+    foreach ($tickets as $ticket) {
+        $diff = $ticket->getCreatedAt()->diff($ticket->getResolvedAt());
+        $totalHours += ($diff->days * 24) + $diff->h;
+    }
+
+    return round($totalHours / count($tickets), 1);
+}//    /**
     //     * @return Ticket[] Returns an array of Ticket objects
     //     */
     //    public function findByExampleField($value): array

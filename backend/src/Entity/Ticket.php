@@ -46,6 +46,9 @@ class Ticket
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'ticket')]
     private Collection $comments;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $resolvedAt = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -166,6 +169,18 @@ class Ticket
                 $comment->setTicket(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getResolvedAt(): ?\DateTimeImmutable
+    {
+        return $this->resolvedAt;
+    }
+
+    public function setResolvedAt(?\DateTimeImmutable $resolvedAt): static
+    {
+        $this->resolvedAt = $resolvedAt;
 
         return $this;
     }

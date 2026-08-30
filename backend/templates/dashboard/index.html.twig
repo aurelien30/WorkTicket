@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard DSI{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Tableau de bord DSI</h1>
+
+    <div class="row g-3 mt-2">
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Tickets ouverts</h5>
+                        <p class="card-text display-4">{{ ticketsOuverts }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Tickets résolus</h5>
+                        <p class="card-text display-4">{{ ticketsResolus }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Temps moyen</h5>
+                        <p class="card-text display-4">
+                            {% if tempsMoyen is not null %}
+                                {{ tempsMoyen }} h
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Techniciens actifs</h5>
+                        <p class="card-text display-4">{{ techniciensActifs }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}

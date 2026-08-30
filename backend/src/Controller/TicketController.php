@@ -70,13 +70,14 @@ public function new(Request $request, EntityManagerInterface $em): Response{
    public function resolve(Ticket $ticket, EntityManagerInterface $em): Response{
 
    $ticket->setStatus(TicketStatus::RESOLVED);
+   $ticket->setResolvedAt(new \DateTimeImmutable());
    $em->flush();
 
    return $this->redirectToRoute('ticket_index');
    }
 
    #[Route('/tickets/{id}/fermer', name: 'ticket_close')]
-   //#[IsGranted('ROLE_TECHNICIEN')]
+   #[IsGranted('ROLE_TECHNICIEN')]
    public function close(Ticket $ticket, EntityManagerInterface $em): Response{
 
    $ticket->setStatus(TicketStatus::CLOSED);
@@ -100,4 +101,7 @@ public function new(Request $request, EntityManagerInterface $em): Response{
 
    return $this->redirectToRoute('ticket_index');
    }
+
+ 
+
 }
