@@ -20,22 +20,34 @@
                     {% endif %}
                 {% endif %}
 
+                
                 <h4>Commentaires</h4>
                 <ul>
-                    {% for comment in ticket.cmments%}
-                    <li>
-                       <strong>{{ comment.author.prenom}} {{ comment.author.nom}}</strong>
-                       {{ comment.content}}
-                       <em>({{ comment.createdAt|date('d/m/Y H:i') }})</em>
-                    </li>
+                    {% for comment in ticket.comments %}
+                        <li>
+                            <strong>{{ comment.author.prenom }} {{ comment.author.nom }}</strong>
+                            {{ comment.content }}
+                            <em>({{ comment.createdAt|date('d/m/Y H:i') }})</em>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <h4>Historique</h4>
+                <ul>
+                    {% for log in ticket.activityLogs %}
+                        <li>
+                            <strong>{{ log.user.prenom }} {{ log.user.nom }}</strong>
+                            {{ log.message }}
+                            <em>({{ log.createdAt|date('d/m/Y H:i') }})</em>
+                        </li>
                     {% endfor %}
                 </ul>
 
                 <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}">
-                     <input type="text name="content" placeholder="Ecrire un message..." required>
-                     <button type="submit">Envoyer</button>
+                    <input type="text" name="content" placeholder="Écrire un message..." required>
+                    <button type="submit">Envoyer</button>
                 </form>
             </li>
         {% endfor %}
-</ul>
+    </ul>
 {% endblock %}

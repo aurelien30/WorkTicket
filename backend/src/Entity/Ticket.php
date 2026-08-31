@@ -49,9 +49,16 @@ class Ticket
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resolvedAt = null;
 
+    /**
+     * @var Collection<int, ActivityLog>
+     */
+    #[ORM\OneToMany(targetEntity: ActivityLog::class, mappedBy: 'ticket')]
+    private Collection $activityLogs;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->activityLogs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -181,6 +188,36 @@ class Ticket
     public function setResolvedAt(?\DateTimeImmutable $resolvedAt): static
     {
         $this->resolvedAt = $resolvedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ActivityLog>
+     */
+    public function getActivityLogs(): Collection
+    {
+        return $this->activityLogs;
+    }
+
+    public function addActivityLog(ActivityLog $activityLog): static
+    {
+        if (!$this->activityLogs->contains($activityLog)) {
+            $this->activityLogs->add($activityLog);
+            $activityLog->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivityLog(ActivityLog $activityLog): static
+    {
+        if ($this->activityLogs->removeElement($activityLog)) {
+            // set the owning side to null (unless already changed)
+            if ($activityLog->getTicket() === $this) {
+                $activityLog->setTicket(null);
+            }
+        }
 
         return $this;
     }

@@ -7,6 +7,7 @@ use App\Entity\Ticket;
 use App\Entity\Comment;
 use App\Entity\Project;
 use App\Entity\Task;
+use App\Entity\ActivityLog;
 use App\Enum\TicketStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -31,19 +32,11 @@ class AppFixtures extends Fixture
         );
 
         $manager->persist($user);
-        $manager->flush();
+        
 
 
-        $ticket = new Ticket();
-        $ticket->setTitle('Problème serveur RH');
-        $ticket->setDescription('Le serveur RH est indisponible depuis plusieurs heures.');
-        $ticket->setPriority('HAUTE');
-        $ticket->setStatus(TicketStatus::NEW);
-        $ticket->setCreatedAt(new \DateTimeImmutable());
-        $ticket->setCreator($user);
-
-        $manager->persist($ticket);
-        $manager->flush();
+       
+        
 
 
         $technicien = new User;
@@ -57,6 +50,17 @@ class AppFixtures extends Fixture
         );
 
         $manager->persist($technicien);
+
+         $ticket = new Ticket();
+        $ticket->setTitle('Problème serveur RH');
+        $ticket->setDescription('Le serveur RH est indisponible depuis plusieurs heures.');
+        $ticket->setPriority('HAUTE');
+        $ticket->setStatus(TicketStatus::IN_PROGRESS);
+        $ticket->setCreatedAt(new \DateTimeImmutable());
+        $ticket->setCreator($user);
+        $ticket->setTechnician($technicien);
+
+        $manager->persist($ticket);
         
         $commentTech = new Comment();
         $commentTech->setContent('Nous avons identifié le problème et travaillons à sa résolution.');
@@ -72,7 +76,14 @@ class AppFixtures extends Fixture
         $commentUser->setAuthor($user);
         $manager->persist($commentUser);
 
-        $manager->flush();
+        $log = new ActivityLog();
+        $log->setTicket($ticket);
+        $log->setUser($technicien);
+        $log->setMessage('a changé le statut de NEW vers IN_PROGRESS');
+        $log->setCreatedAt(new \DateTimeImmutable());
+        $manager->persist($log);
+
+
         
         $project = new Project();
         $project->setName('Migration serveurs 2026');

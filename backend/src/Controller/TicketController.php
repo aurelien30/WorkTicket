@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Ticket;
 use App\Entity\Comment;
 use App\Enum\TicketStatus;
+use App\Service\ActivityLogger;
 use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -56,32 +57,56 @@ public function new(Request $request, EntityManagerInterface $em): Response{
 
    #[Route('/tickets/{id}/prendre-en-charge', name: 'ticket_assign')]
    #[IsGranted('ROLE_TECHNICIEN')]
-   public function assign(Ticket $ticket, EntityManagerInterface $em): Response{
+   public function assign(Ticket $ticket, EntityManagerInterface $em, ActivityLogger $logger): Response{
+
+        $ancienStatus = $ticket->getStatus()->value;
 
         $ticket->setStatus(TicketStatus::IN_PROGRESS);
         $ticket->setTechnician($this->getUser());
         $em->flush();
+
+       $logger->log(
+        $ticket,
+        $this->getUser(),
+        sprintf('a changé le statut de %s vers %s', $ancienStatus, TicketStatus::IN_PROGRESS->value)
+    );
 
         return $this->redirectToRoute('ticket_index');
    }
 
    #[Route('/tickets/{id}/resoudre', name: 'ticket_resolve')]
    #[IsGranted('ROLE_TECHNICIEN')]
-   public function resolve(Ticket $ticket, EntityManagerInterface $em): Response{
+   public function resolve(Ticket $ticket, EntityManagerInterface $em, ActivityLogger $logger): Response{
+
+    $ancienStatus = $ticket->getStatus()->value;
 
    $ticket->setStatus(TicketStatus::RESOLVED);
    $ticket->setResolvedAt(new \DateTimeImmutable());
    $em->flush();
+
+   $logger->log(
+        $ticket,
+        $this->getUser(),
+        sprintf('a changé le statut de %s vers %s', $ancienStatus, TicketStatus::RESOLVED->value)
+    );
 
    return $this->redirectToRoute('ticket_index');
    }
 
    #[Route('/tickets/{id}/fermer', name: 'ticket_close')]
    #[IsGranted('ROLE_TECHNICIEN')]
-   public function close(Ticket $ticket, EntityManagerInterface $em): Response{
+   public function close(Ticket $ticket, EntityManagerInterface $em, ActivityLogger $logger): Response{
+
+   $ancienStatus = $ticket->getStatus()->value;
 
    $ticket->setStatus(TicketStatus::CLOSED);
    $em->flush();
+
+   $logger->log(
+        $ticket,
+        $this->getUser(),
+        sprintf('a changé le statut de %s vers %s', $ancienStatus, TicketStatus::CLOSED->value)
+    );
 
    return $this->redirectToRoute('ticket_index');
    }
