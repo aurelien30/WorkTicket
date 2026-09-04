@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body%}
+<div class="container mt-4">
+    <h1>Base de connaissances</h1>
+    <p>Liste des articles à venir.</p>
+</div>
+
+{% if is_granted('ROLE_TECHNICIEN') and (ticket.status.name == 'RESOLVED' or ticket.status.name == 'CLOSED') %}
+    <a href="{{ path('article_new_from_ticket', {id: ticket.id}) }}" class="btn btn-sm btn-outline-secondary">
+        Créer un article
+    </a>
+{% endif %}
+{% endblock %}

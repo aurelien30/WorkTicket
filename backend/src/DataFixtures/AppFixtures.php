@@ -8,6 +8,8 @@ use App\Entity\Comment;
 use App\Entity\Project;
 use App\Entity\Task;
 use App\Entity\ActivityLog;
+use App\Entity\KnowledgeArticle;
+use App\Enum\KnowledgeArticleStatus;
 use App\Enum\TicketStatus;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -111,6 +113,16 @@ class AppFixtures extends Fixture
         $task3->setCreatedAt(new \DateTimeImmutable());
         $task3->setProject($project);
         $manager->persist($task3);
+
+        $article = new KnowledgeArticle();
+        $article->setTitle('Problème serveur RH');
+        $article->setProblem('Le serveur RH est indisponible depuis plusieurs heures.');
+        $article->setSolution('Nous avons identifié le problème et travaillons à sa résolution.');
+        $article->setCategory('Réseau');
+        $article->setStatus(KnowledgeArticleStatus::BROUILLON);
+        $article->setCreatedAt(new \DateTimeImmutable());
+        $article->setAuthor($technicien);
+        $manager->persist($article);
 
         $manager->flush();
     }

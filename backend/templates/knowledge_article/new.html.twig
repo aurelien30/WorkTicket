@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{%block body%}
+ <div class="container mt-4">
+     <h1>Créer un article de connaissance</h1>
+     <p class="text-muted">Généré depuis le ticket : {{ ticket.title }}</p>
+
+
+     <form method="post">
+      <div class="mb-3">
+        <label class="form-label">Titre</label>
+        <input type="text" class="form-control" name="title" value="{{ ticket.title }}" required>
+
+       <div class="mb-3">
+                <label class="form-label">Problème</label>
+                <textarea class="form-control" name="problem" rows="3" required>{{ ticket.description }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Cause (optionnel)</label>
+                <textarea class="form-control" name="cause" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Solution</label>
+                <textarea class="form-control" name="solution" rows="3" required>{{ suggestedSolution }}</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Catégorie</label>
+                <input type="text" class="form-control" name="category" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Créer l'article (brouillon)</button>
+        </form>
+    </div>
+{% endblock %}
