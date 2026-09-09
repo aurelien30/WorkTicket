@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Recherche dans la base de connaissances</h1>
+
+        <form method="get" action="{{ path('article_search') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Rechercher..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </form>
+
+        {% if query %}
+            <p>{{ results|length }} résultat(s) pour « {{ query }} »</p>
+
+            {% for article in results %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ article.title }}</h5>
+                        <p class="card-text">{{ article.solution|slice(0, 150) }}...</p>
+                        <span class="badge bg-secondary">{{ article.category }}</span>
+                    </div>
+                </div>
+            {% else %}
+                <p>Aucun article trouvé.</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock %}

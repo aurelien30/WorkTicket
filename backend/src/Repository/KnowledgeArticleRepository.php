@@ -16,6 +16,27 @@ class KnowledgeArticleRepository extends ServiceEntityRepository
         parent::__construct($registry, KnowledgeArticle::class);
     }
 
+    
+     public function searchFullText(string $query): array
+{
+    $conn = $this->getEntityManager()->getConnection();
+
+    $sql = '
+        SELECT id, title, problem, solution, category
+        FROM knowledge_article
+        WHERE MATCH(title, problem, solution) AGAINST (:query IN NATURAL LANGUAGE MODE)
+        AND status = :status
+        ORDER BY MATCH(title, problem, solution) AGAINST (:query IN NATURAL LANGUAGE MODE) DESC
+    ';
+
+    
+    $result = $conn->executeQuery($sql, [
+        'query' => $query,
+        'status' => 'PUBLIE',
+    ]);
+
+    return $result->fetchAllAssociative();
+}
     //    /**
     //     * @return KnowledgeArticle[] Returns an array of KnowledgeArticle objects
     //     */

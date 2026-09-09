@@ -124,6 +124,15 @@ class AppFixtures extends Fixture
         $article->setAuthor($technicien);
         $manager->persist($article);
 
+        $articleWifi = new KnowledgeArticle();
+        $articleWifi->setTitle('Configuration WiFi Windows');
+        $articleWifi->setProblem('L\'utilisateur ne parvient pas à se connecter au réseau wifi de l\'entreprise.');
+        $articleWifi->setSolution('Ouvrir les paramètres réseau, oublier le réseau wifi existant, puis se reconnecter en saisissant le mot de passe fourni par le service informatique.');
+        $articleWifi->setCategory('Réseau');
+        $articleWifi->setStatus(KnowledgeArticleStatus::PUBLIE);
+        $articleWifi->setCreatedAt(new \DateTimeImmutable());
+        $articleWifi->setAuthor($technicien);
+        $manager->persist($articleWifi);
         $manager->flush();
     }
 }

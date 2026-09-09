@@ -6,6 +6,7 @@ use App\Entity\Ticket;
 use App\Enum\KnowledgeArticleStatus;
 use App\Enum\TicketStatus;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\KnowledgeArticleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,4 +60,21 @@ class KnowledgeArticleController extends AbstractController
         return $this->render('knowledge_article/index.html.twig');
         
     }
+
+    #[Route('/articles/search', name: 'article_search')]
+    #[IsGranted('ROLE_USER')]
+    public function search(Request $request, KnowledgeArticleRepository $repository): Response
+{
+    $query = $request->query->get('q', '');
+    $results = [];
+
+    if ($query !== '') {
+        $results = $repository->searchFullText($query);
+    }
+
+    return $this->render('knowledge_article/search.html.twig', [
+        'query' => $query,
+        'results' => $results,
+    ]);
+}
 }
