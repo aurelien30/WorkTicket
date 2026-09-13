@@ -2,6 +2,11 @@
 
 
 {% block body %}
+    <div class="container mt-4">
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
     <h1>Liste des Tickets</h1>
     <ul>
        {% for ticket in tickets %}
@@ -43,8 +48,10 @@
                     {% endfor %}
                 </ul>
 
-                <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}">
-                    <input type="text" name="content" placeholder="Écrire un message..." required>
+                <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}" enctype="multipart/form-data">
+                    <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ ticket.id) }}">
+                    <input type="text" name="content" class="form-control" placeholder="Écrire un message..." required>
+                    <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
                     <button type="submit">Envoyer</button>
                 </form>
             </li>

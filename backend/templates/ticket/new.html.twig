@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Créer un nouveau ticket</h1>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Titre</label>
+                <input type="text" class="form-control" name="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" name="description" rows="4" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Priorité</label>
+                <select class="form-control" name="priority" required>
+                    <option value="BASSE">Basse</option>
+                    <option value="MOYENNE">Moyenne</option>
+                    <option value="HAUTE">Haute</option>
+                    <option value="CRITIQUE">Critique</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Créer le ticket</button>
+        </form>
+    </div>
+{% endblock %}

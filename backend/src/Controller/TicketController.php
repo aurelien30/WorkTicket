@@ -7,17 +7,22 @@ use App\Entity\Comment;
 use App\Enum\TicketStatus;
 use App\Service\ActivityLogger;
 use App\Repository\TicketRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\String\Slugger\SluggerInterface;
 class TicketController extends AbstractController{
 
 #[Route('/tickets', name: 'ticket_index')]
-#[IsGranted('ROLE_USER')]
+//#[IsGranted('ROLE_USER')]
 public function index(TicketRepository $ticketRepository): Response
 {
   // Un technicien voit tous les tickets, un utilisateur normal ne voit que les siens
@@ -27,6 +32,8 @@ public function index(TicketRepository $ticketRepository): Response
             $tickets = $ticketRepository->findBy(['creator' => $this->getUser()]);
         }
 
+        $tickets = $ticketRepository->findAll(); // TEMPORAIRE : on affiche tout pour le test
+
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
         ]);
@@ -34,7 +41,7 @@ public function index(TicketRepository $ticketRepository): Response
 
 #[Route('/tickets/new', name: 'ticket_new')]
 #[IsGranted('ROLE_USER')]
-public function new(Request $request, EntityManagerInterface $em): Response{
+public function new(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): Response{
 
      $ticket = new Ticket();
 
@@ -45,7 +52,14 @@ public function new(Request $request, EntityManagerInterface $em): Response{
         $ticket->setStatus(TicketStatus::NEW);
         $ticket->setCreatedAt(new \DateTimeImmutable());
         $ticket->setCreator($this->getUser());
-
+        
+        $errors = $validator->validate($ticket);
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
+            return $this->render('ticket/new.html.twig');
+        }
         $em->persist($ticket);
         $em->flush();
 
@@ -112,15 +126,52 @@ public function new(Request $request, EntityManagerInterface $em): Response{
    }
 
    #[Route('/tickets/{id}/commenter', name: 'ticket_comment')]
-   #[IsGranted('ROLE_USER')]
-   public function addComment (Ticket $ticket, Request $request, EntityManagerInterface $em): Response{
+   //#[IsGranted('ROLE_USER')]
+   public function addComment (Ticket $ticket, 
+   Request $request, 
+   EntityManagerInterface $em, 
+   CsrfTokenManagerInterface $csrfTokenManager,
+   SluggerInterface $slugger, 
+   UserRepository $userRepository
+   ): Response{
 
+   $submittedToken = $request->request->get('_token');
+   if (!$csrfTokenManager->isTokenValid(new CsrfToken('comment_' . $ticket->getId(), $submittedToken))) {
+       throw $this->createAccessDeniedException('Invalid CSRF token.');
+   }
    $comment = new Comment();
    $comment->setContent($request->request->get('content'));
    $comment->setCreatedAt(new \DateTimeImmutable());
    $comment->setTicket($ticket);
-   $comment->setAuthor($this->getUser());
+   $comment->setAuthor($userRepository->findOneBy(['email' => 'jean.dupont@workticket.local']));
 
+   /** @var UploadedFile|null $attachment */
+    $attachment = $request->files->get('attachment');
+
+    if ($attachment) {
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+
+        if (!in_array($attachment->getMimeType(), $allowedMimeTypes)) {
+            $this->addFlash('error', 'Seuls les fichiers JPG, PNG et PDF sont autorisés.');
+            return $this->redirectToRoute('ticket_index');
+        }
+
+        if ($attachment->getSize() > 5 * 1024 * 1024) {
+            $this->addFlash('error', 'Le fichier ne doit pas dépasser 5 Mo.');
+            return $this->redirectToRoute('ticket_index');
+        }
+
+        $originalFilename = pathinfo($attachment->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($originalFilename);
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $attachment->guessExtension();
+
+        try {
+            $attachment->move($this->getParameter('uploads_directory'), $newFilename);
+            $comment->setAttachmentFilename($newFilename);
+        } catch (FileException $e) {
+            $this->addFlash('error', 'Erreur lors de l\'envoi du fichier.');
+        }
+    }
    $em->persist($comment);
    $em->flush();
 

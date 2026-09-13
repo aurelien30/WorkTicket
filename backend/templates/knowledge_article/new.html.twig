@@ -1,17 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{%block body%}
- <div class="container mt-4">
-     <h1>Créer un article de connaissance</h1>
-     <p class="text-muted">Généré depuis le ticket : {{ ticket.title }}</p>
+{% block body %}
+    <div class="container mt-4">
+        <h1>Créer un article de connaissance</h1>
+        <p class="text-muted">Généré depuis le ticket : {{ ticket.title }}</p>
 
+        <form method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('article_new') }}">
 
-     <form method="post">
-      <div class="mb-3">
-        <label class="form-label">Titre</label>
-        <input type="text" class="form-control" name="title" value="{{ ticket.title }}" required>
+            <div class="mb-3">
+                <label class="form-label">Titre</label>
+                <input type="text" class="form-control" name="title" value="{{ ticket.title }}" required>
+            </div>
 
-       <div class="mb-3">
+            <div class="mb-3">
                 <label class="form-label">Problème</label>
                 <textarea class="form-control" name="problem" rows="3" required>{{ ticket.description }}</textarea>
             </div>

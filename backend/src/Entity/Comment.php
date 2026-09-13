@@ -28,6 +28,9 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?User $author = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $attachmentFilename = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,6 +80,18 @@ class Comment
     public function setAuthor(?User $author): static
     {
         $this->author = $author;
+
+        return $this;
+    }
+
+    public function getAttachmentFilename(): ?string
+    {
+        return $this->attachmentFilename;
+    }
+
+    public function setAttachmentFilename(?string $attachmentFilename): static
+    {
+        $this->attachmentFilename = $attachmentFilename;
 
         return $this;
     }
