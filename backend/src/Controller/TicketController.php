@@ -7,7 +7,7 @@ use App\Entity\Comment;
 use App\Enum\TicketStatus;
 use App\Service\ActivityLogger;
 use App\Repository\TicketRepository;
-use App\Repository\UserRepository;
+
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +22,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class TicketController extends AbstractController{
 
 #[Route('/tickets', name: 'ticket_index')]
-//#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_USER')]
 public function index(TicketRepository $ticketRepository): Response
 {
   // Un technicien voit tous les tickets, un utilisateur normal ne voit que les siens
@@ -32,7 +32,7 @@ public function index(TicketRepository $ticketRepository): Response
             $tickets = $ticketRepository->findBy(['creator' => $this->getUser()]);
         }
 
-        $tickets = $ticketRepository->findAll(); // TEMPORAIRE : on affiche tout pour le test
+        
 
         return $this->render('ticket/index.html.twig', [
             'tickets' => $tickets,
@@ -131,8 +131,7 @@ public function new(Request $request, EntityManagerInterface $em, ValidatorInter
    Request $request, 
    EntityManagerInterface $em, 
    CsrfTokenManagerInterface $csrfTokenManager,
-   SluggerInterface $slugger, 
-   UserRepository $userRepository
+   SluggerInterface $slugger
    ): Response{
 
    $submittedToken = $request->request->get('_token');
@@ -143,7 +142,7 @@ public function new(Request $request, EntityManagerInterface $em, ValidatorInter
    $comment->setContent($request->request->get('content'));
    $comment->setCreatedAt(new \DateTimeImmutable());
    $comment->setTicket($ticket);
-   $comment->setAuthor($userRepository->findOneBy(['email' => 'jean.dupont@workticket.local']));
+    $comment->setAuthor($this->getUser());
 
    /** @var UploadedFile|null $attachment */
     $attachment = $request->files->get('attachment');
