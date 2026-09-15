@@ -1,53 +1,35 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard DSI{% endblock %}
-
 {% block body %}
-<div class="container mt-4">
-    <h1>Tableau de bord DSI</h1>
+<div class="container mt-5">
+    <h1 class="wt-title mb-4">Bienvenue {{ app.user.prenom }}</h1>
 
-    <div class="row g-3 mt-2">
-            <div class="col-md-3">
-                <div class="card text-white bg-danger">
-                    <div class="card-body">
-                        <h5 class="card-title">Tickets ouverts</h5>
-                        <p class="card-text display-4">{{ ticketsOuverts }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-white bg-success">
-                    <div class="card-body">
-                        <h5 class="card-title">Tickets résolus</h5>
-                        <p class="card-text display-4">{{ ticketsResolus }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-white bg-info">
-                    <div class="card-body">
-                        <h5 class="card-title">Temps moyen</h5>
-                        <p class="card-text display-4">
-                            {% if tempsMoyen is not null %}
-                                {{ tempsMoyen }} h
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card text-white bg-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Techniciens actifs</h5>
-                        <p class="card-text display-4">{{ techniciensActifs }}</p>
-                    </div>
-                </div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="wt-panel p-4">
+                <div class="text-muted" style="color: var(--wt-text-muted) !important;">Tickets ouverts</div>
+                <div class="wt-stat-value">{{ ticketsOuverts }}</div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="wt-panel p-4">
+                <div class="text-muted" style="color: var(--wt-text-muted) !important;">Tickets résolus</div>
+                <div class="wt-stat-value" style="color: var(--wt-success);">{{ ticketsResolus }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="wt-panel p-4">
+                <div class="text-muted" style="color: var(--wt-text-muted) !important;">Techniciens actifs</div>
+                <div class="wt-stat-value">{{ techniciensActifs }}</div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="wt-title mt-5 mb-3" style="font-size: 1.3rem;">Dernières activités</h3>
+    <div class="wt-panel p-4">
+        <p class="text-muted" style="color: var(--wt-text-muted) !important;">
+            (section à connecter à ActivityLog globalement, actuellement affiché par ticket)
+        </p>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="wt-panel p-5" style="max-width: 420px; width: 100%;">
+        <div class="text-center mb-4">
+            <img src="{{ asset('images/logo.svg') }}" alt="WorkTicket" style="width: 80px; height: 80px;">
+            <h1 class="wt-title mt-2" style="font-size: 1.8rem;">WorkTicket</h1>
+            <p class="text-muted" style="color: var(--wt-text-muted) !important;">Espace de gestion des tickets</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control" value="{{ last_username }}" required autofocus>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button type="submit" class="btn wt-btn-primary w-100 py-2">Se connecter</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

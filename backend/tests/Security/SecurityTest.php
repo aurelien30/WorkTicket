@@ -5,7 +5,7 @@ namespace App\Tests\Security;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\UserPasswordHasherInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class SecurityTest extends WebTestCase
 {
@@ -15,7 +15,7 @@ class SecurityTest extends WebTestCase
         $user = new User();
         $user->setEmail('test.user@workticket.local');
         $user->setNom('Test');
-        $user->set6renom('User');
+        $user->setPrenom('User');
         $user->setRoles($roles);
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setPassword($hasher->hashPassword($user, 'testpassword'));
@@ -32,7 +32,7 @@ class SecurityTest extends WebTestCase
             $client->request('GET', '/tickets');
             
             // Sans être connecté, on est bloqué par une redirection ou une erreur401
-            $this->assertResponseRedirects('/login');
+            $this->assertResponseStatusCodeSame(401);
         }
 
         public function testUserWithoutAdminRoleCannotAccessDashboard(): void{

@@ -1,60 +1,77 @@
 {% extends 'base.html.twig' %}
 
-
 {% block body %}
-    <div class="container mt-4">
+<div class="container mt-4">
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
 
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger">{{ message }}</div>
-        {% endfor %}
-    <h1>Liste des Tickets</h1>
-    <ul>
-       {% for ticket in tickets %}
-            <li>
-               <strong>{{ ticket.title }}</strong> — {{ ticket.priority }} — {{ ticket.status.value }}
+    <h1 class="wt-title mb-4">Tickets</h1>
 
-                {% if is_granted('ROLE_TECHNICIEN') %}
-                    {% if ticket.status.name == 'NEW' or ticket.status.name == 'ASSIGNED' %}
-                        <a href="{{ path('ticket_assign', {id: ticket.id}) }}">Prendre en charge</a>
+    {% for ticket in tickets %}
+        <div class="wt-panel p-4 mb-4">
+            <h4 class="wt-title" style="font-size: 1.2rem;">Ticket #{{ ticket.id }} — {{ ticket.title }}</h4>
+
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="text-muted" style="color: var(--wt-text-muted) !important;">Statut</div>
+                    {% if ticket.status.name == 'IN_PROGRESS' %}
+                        🟠 En cours
+                    {% elseif ticket.status.name in ['NEW', 'ASSIGNED'] %}
+                        🔵 Nouveau
+                    {% elseif ticket.status.name == 'RESOLVED' %}
+                        🟢 Résolu
+                    {% else %}
+                        ⚪ Fermé
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted" style="color: var(--wt-text-muted) !important;">Priorité</div>
+                    {% if ticket.priority == 'CRITIQUE' or ticket.priority == 'HAUTE' %}
+                        🔴 {{ ticket.priority|capitalize }}
+                    {% elseif ticket.priority == 'MOYENNE' %}
+                        🟡 {{ ticket.priority|capitalize }}
+                    {% else %}
+                        🟢 {{ ticket.priority|capitalize }}
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted" style="color: var(--wt-text-muted) !important;">Technicien</div>
+                    {{ ticket.technician ? ticket.technician.prenom ~ ' ' ~ ticket.technician.nom : 'Non assigné' }}
+                </div>
+            </div>
+
+            {% if is_granted('ROLE_TECHNICIEN') %}
+                <div class="mt-3">
+                    {% if ticket.status.name in ['NEW', 'ASSIGNED'] %}
+                        <a href="{{ path('ticket_assign', {id: ticket.id}) }}" class="btn wt-btn-primary btn-sm">Prendre en charge</a>
                     {% endif %}
                     {% if ticket.status.name == 'IN_PROGRESS' %}
-                        <a href="{{ path('ticket_resolve', {id: ticket.id}) }}">Résoudre</a>
+                        <a href="{{ path('ticket_resolve', {id: ticket.id}) }}" class="btn wt-btn-primary btn-sm">Résoudre</a>
                     {% endif %}
                     {% if ticket.status.name == 'RESOLVED' %}
-                        <a href="{{ path('ticket_close', {id: ticket.id}) }}">Fermer</a>
+                        <a href="{{ path('ticket_close', {id: ticket.id}) }}" class="btn wt-btn-primary btn-sm">Fermer</a>
+                        <a href="{{ path('article_new_from_ticket', {id: ticket.id}) }}" class="btn btn-outline-light btn-sm">Créer un article</a>
                     {% endif %}
-                {% endif %}
+                </div>
+            {% endif %}
 
-                
-                <h4>Commentaires</h4>
-                <ul>
-                    {% for comment in ticket.comments %}
-                        <li>
-                            <strong>{{ comment.author.prenom }} {{ comment.author.nom }}</strong>
-                            {{ comment.content }}
-                            <em>({{ comment.createdAt|date('d/m/Y H:i') }})</em>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <hr style="border-color: rgba(46, 168, 255, 0.15);">
 
-                <h4>Historique</h4>
-                <ul>
-                    {% for log in ticket.activityLogs %}
-                        <li>
-                            <strong>{{ log.user.prenom }} {{ log.user.nom }}</strong>
-                            {{ log.message }}
-                            <em>({{ log.createdAt|date('d/m/Y H:i') }})</em>
-                        </li>
-                    {% endfor %}
-                </ul>
+            <h6 class="text-muted" style="color: var(--wt-text-muted) !important;">Commentaires</h6>
+            {% for comment in ticket.comments %}
+                <p class="mb-1"><strong>{{ comment.author.prenom }}</strong> : {{ comment.content }}</p>
+            {% endfor %}
 
-                <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}" enctype="multipart/form-data">
-                    <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ ticket.id) }}">
-                    <input type="text" name="content" class="form-control" placeholder="Écrire un message..." required>
+            <form method="post" action="{{ path('ticket_comment', {id: ticket.id}) }}" enctype="multipart/form-data" class="mt-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('comment_' ~ ticket.id) }}">
+                <div class="input-group">
+                    <input type="text" name="content" class="form-control" placeholder="Écrire un message...">
                     <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf">
-                    <button type="submit">Envoyer</button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+                    <button type="submit" class="btn wt-btn-primary">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    {% endfor %}
+</div>
 {% endblock %}
